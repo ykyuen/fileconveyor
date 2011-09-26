@@ -359,6 +359,7 @@ class Arbitrator(threading.Thread):
 
             # Discover queue -> pipeline queue.
             (input_file, event) = self.discover_queue.get()
+            input_file = input_file.decode('utf-8')
             item = self.pipeline_queue.get_item_for_key(key=input_file)
             # If the file does not yet exist in the pipeline queue, put() it.
             if item is None:
@@ -375,7 +376,7 @@ class Arbitrator(threading.Thread):
                 # the file from the pipeline queue.
                 else:
                     self.pipeline_queue.remove_item_for_key(key=input_file)
-                    self.logger.info("Pipeline queue: merged events for '%s': %s + %s cancel each other out, thus removed this file." % (input_file, FSMonitor.EVENTNAMES[old_event], FSMonitor.EVENTNAMES[event], FSMonitor.EVENTNAMES[merged_event]))
+                    #self.logger.info("Pipeline queue: merged events for '%s': %s + %s cancel each other out, thus removed this file." % (input_file, FSMonitor.EVENTNAMES[old_event], FSMonitor.EVENTNAMES[event], FSMonitor.EVENTNAMES[merged_event]))
             self.logger.info("Discover queue -> pipeline queue: '%s'." % (input_file))
         self.lock.release()
 
@@ -416,7 +417,8 @@ class Arbitrator(threading.Thread):
             # application was interrupted. When that's the case, drop the
             # file from the pipeline.
             touched = event == FSMonitor.CREATED or event == FSMonitor.MODIFIED
-            if touched and not os.path.exists(input_file):
+            #input_file = input_file.encode('utf-8')
+            if touched and not os.path.exists(input_file.encode('utf-8')):
                 self.lock.acquire()
                 self.files_in_pipeline.remove((input_file, event))
                 self.lock.release()
@@ -911,6 +913,7 @@ class Arbitrator(threading.Thread):
         # The file may have already been deleted!
         deleted = event == FSMonitor.DELETED
         touched = event == FSMonitor.CREATED or event == FSMonitor.MODIFIED
+        event_path = unicode(event_path).encode('utf-8')
         if deleted or (touched and os.path.exists(event_path)):
             # Ignore directories (we cannot test deleted files to see if they
             # are directories, because they obviously don't exist anymore).

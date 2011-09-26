@@ -67,6 +67,7 @@ class PathScanner(object):
         Returns (path, filename, mtime, is_dir) tuples.
         """
 
+        path = path.decode('utf-8')
         try:
             filenames = os.listdir(path)
         except os.error:
@@ -74,8 +75,9 @@ class PathScanner(object):
 
         for filename in filenames:
             try:
+                filename = filename.decode('utf-8')
                 path_to_file = os.path.join(path, filename)
-                st = os.stat(path_to_file)
+                st = os.stat(unicode(path_to_file).encode('utf8'))
                 mtime = st[stat.ST_MTIME]
                 if stat.S_ISDIR(st.st_mode):
                     # If this is one of the ignored directories, skip it.

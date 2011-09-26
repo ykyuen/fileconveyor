@@ -100,6 +100,8 @@ class PersistentQueue(object):
         self.lock.acquire()
         try:
             pickled_item = cPickle.dumps(item, cPickle.HIGHEST_PROTOCOL)
+            #print key
+            #print md5
             self.dbcur.execute("INSERT INTO %s (item, key) VALUES(?, ?)" % (self.table), (sqlite3.Binary(pickled_item), md5))
         except sqlite3.IntegrityError:
             self.lock.release()

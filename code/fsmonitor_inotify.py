@@ -71,7 +71,7 @@ class FSMonitorInotify(FSMonitor):
         # Immediately start monitoring this directory.
         event_mask_inotify = self.__fsmonitor_event_to_inotify_event(event_mask)
         try:
-            wdd = self.wm.add_watch(path, event_mask_inotify, proc_fun=self.process_event, rec=True, auto_add=True, quiet=False)
+            wdd = self.wm.add_watch(path.encode('utf-8'), event_mask_inotify, proc_fun=self.process_event, rec=True, auto_add=True, quiet=False)
         except WatchManagerError, e:
             raise FSMonitorError, "Could not monitor '%s', reason: %s" % (path, e)
         # Verify that inotify is able to monitor this directory and all of its
